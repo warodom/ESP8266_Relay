@@ -7,8 +7,8 @@ SoftwareSerial esp8266(3,4); // make RX Arduino line is pin 2, make TX Arduino l
                              // and the RX line from the esp to the Arduino's pin 3
 
 String IP;
-String ssid = "worktong514";
-String pass = "1234567890";
+String ssid = "Pi_AP";
+String pass = "Raspberry";
 int connectionId;
 /*
 String Webpage_1 = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
@@ -25,11 +25,15 @@ String Webpage_2 = "</style></head><body bgcolor=\"#FFFFCC\">&nbsp;<table width=
                    "<input type=\"button\" onClick=\"window.location='/status/1';\" value=\"ON\" /><input type=\"button\" onClick=\"window.location='/status/0';\" value=\"OFF\" />"
                    "</body></html>";
 */
-
+/*
 String Webpage_A = "<title>ESP8266</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
                    "<h1>GPIO16 Control</h1><button onClick=\"window.location='/status/1';\">ON</button>&nbsp;&nbsp;"
                    "<button onClick=\"window.location='/status/0';\">OFF</button>";
 
+String Webpage_B = "<title>ESP8266</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+                   "<h1>GPIO16 Control</h1><input type=\"button\" onClick=\"window.location='/status/1';\" value=\"ON\" />&nbsp;&nbsp;"
+                   "<input type=\"button\" onClick=\"window.location='/status/0';\" value=\"OFF\" />";
+*/
 void setup()
 {
   Serial.begin(19200);
@@ -83,9 +87,20 @@ void loop()
                  "<h1>GPIO16 Control</h1><button onClick=\"window.location='/status/1';\">ON</button>&nbsp;&nbsp;"
                  "<button onClick=\"window.location='/status/0';\">OFF</button>");   
       */
-      sendWebpage(Webpage_A);
-      //sendWebpage(Webpage_1);
-      //sendWebpage(Webpage_2);
+      /*
+     sendWebpage("<title>ESP8266</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+                 "<h1>GPIO16 Control</h1><input type=\"button\" onClick=\"window.location='/status/1';\" value=\"ON\" />&nbsp;&nbsp;"
+                 "<input type=\"button\" onClick=\"window.location='/status/0';\" value=\"OFF\" />");   
+     */
+     //sendWebpage("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
+     sendWebpage("<html xmlns=\"http://www.w3.org/1999/xhtml\">"
+                 "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>ESP8266</title>");
+     sendWebpage("</head><body bgcolor=\"#FFFFCC\">&nbsp;<table width=\"80%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
+                 "<td width=\"10%\" bgcolor=\"#00CCFF\">&nbsp;</td><td width=\"90%\" height=\"80\" bgcolor=\"#00CCFF\" id=\"HeadTable\">ESP8266 Smart Control</td></tr></table>");
+     sendWebpage("<table width=\"80%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
+                 "<td height=\"80\" bgcolor=\"#00FF99\" align=\"center\">&nbsp;<button onClick=\"window.location='/status/1';\">ON</button></td></tr>");
+     sendWebpage("<tr><td height=\"80\" bgcolor=\"#00FF99\" align=\"center\">&nbsp;<button onClick=\"window.location='/status/0';\" >OFF</button></td></tr></table>"
+                 "</body></html>");
 
      String closeCommand = "AT+CIPCLOSE="; 
      closeCommand+=connectionId; // append connection id
@@ -104,8 +119,8 @@ void sendWebpage(String command)
   cipSend += ",";
   cipSend +=webpage.length();
   cipSend +="\r\n";
-  sendData(cipSend,100,DEBUG);
-  sendData(webpage,500,DEBUG);
+  sendData(cipSend,1000,DEBUG);
+  sendData(webpage,2000,DEBUG);
 }
  
 String sendData(String command, const int timeout, boolean debug)
