@@ -41,13 +41,16 @@ void setup()
 
   pinMode(13,OUTPUT);
   digitalWrite(13,LOW);
+
+  pinMode(7,OUTPUT);
+  digitalWrite(7,LOW);
   
   sendData("AT+RST\r\n",2000,DEBUG); // reset module
-  sendData("AT+CWMODE=3\r\n",1000,DEBUG); // configure as access point
-  sendData("AT+CWJAP=\"" + ssid + "\",\"" + pass + "\"\r\n",6000,DEBUG);
-  IP = sendData("AT+CIFSR\r\n",1000,DEBUG); // get ip address 
-  sendData("AT+CIPMUX=1\r\n",1000,DEBUG); // configure for multiple connections
-  sendData("AT+CIPSERVER=1,80\r\n",1000,DEBUG); // turn on server on port 80
+  //sendData("AT+CWMODE=3\r\n",1000,DEBUG); // configure as access point
+  sendData("AT+CWJAP=\"" + ssid + "\",\"" + pass + "\"\r\n",4000,DEBUG);
+  IP = sendData("AT+CIFSR\r\n",100,DEBUG); // get ip address 
+  sendData("AT+CIPMUX=1\r\n",100,DEBUG); // configure for multiple connections
+  sendData("AT+CIPSERVER=1,80\r\n",100,DEBUG); // turn on server on port 80
 }
  
 void loop()
@@ -77,8 +80,8 @@ void loop()
      int control_led = esp8266.read()-48;
      if(control_led < 0) control_led = 0;
      Serial.println(":status/" + String(control_led));
-     if(control_led) digitalWrite(13,HIGH);
-     else digitalWrite(13,LOW);     
+     if(control_led) {digitalWrite(13,HIGH); digitalWrite(7,HIGH);}
+     else {digitalWrite(13,LOW); digitalWrite(7,LOW);}    
      
      //digitalWrite(pinNumber, !digitalRead(pinNumber)); // toggle pin    
      //String webpage = "<h1>Hello</h1><h2>World!</h2><button>LED1</button><button>LED2</button>IP: " + IP;
@@ -94,19 +97,19 @@ void loop()
      */
      //sendWebpage("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
      sendWebpage("<html xmlns=\"http://www.w3.org/1999/xhtml\">"
-                 "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>ESP8266</title>");
-     sendWebpage("</head><body bgcolor=\"#FFFFCC\">&nbsp;<table width=\"80%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
-                 "<td width=\"10%\" bgcolor=\"#00CCFF\">&nbsp;</td><td width=\"90%\" height=\"80\" bgcolor=\"#00CCFF\" id=\"HeadTable\">ESP8266 Smart Control</td></tr></table>");
-     sendWebpage("<table width=\"80%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
-                 "<td height=\"80\" bgcolor=\"#00FF99\" align=\"center\">&nbsp;<button onClick=\"window.location='/status/1';\">ON</button></td></tr>");
-     sendWebpage("<tr><td height=\"80\" bgcolor=\"#00FF99\" align=\"center\">&nbsp;<button onClick=\"window.location='/status/0';\" >OFF</button></td></tr></table>"
+                 "<head><meta http-equiv=\"Content-Type\"content=\"text/html;charset=utf-8\"/><title>ESP8266</title>");
+     sendWebpage("</head><body bgcolor=\"#FFFFCC\">&nbsp;<table width=\"80%\" border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\"><tr>");
+     sendWebpage("<td width=\"10%\"bgcolor=\"#00CCFF\">&nbsp;</td><td width=\"90%\"height=\"80\"bgcolor=\"#00CCFF\">ESP8266 Smart Control</td></tr></table>");
+     sendWebpage("<table width=\"80%\"border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\"><tr>");
+     sendWebpage("<td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;<button onClick=\"window.location='/status/1';\">ON</button></td></tr>");
+     sendWebpage("<tr><td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;<button onClick=\"window.location='/status/0';\">OFF</button></td></tr></table>"
                  "</body></html>");
 
      String closeCommand = "AT+CIPCLOSE="; 
      closeCommand+=connectionId; // append connection id
      closeCommand+="\r\n";
      
-     sendData(closeCommand,100,DEBUG);
+     sendData(closeCommand,50,DEBUG);
     }
   }
 }
@@ -119,8 +122,8 @@ void sendWebpage(String command)
   cipSend += ",";
   cipSend +=webpage.length();
   cipSend +="\r\n";
-  sendData(cipSend,1000,DEBUG);
-  sendData(webpage,2000,DEBUG);
+  sendData(cipSend,50,DEBUG);
+  sendData(webpage,150,DEBUG);
 }
  
 String sendData(String command, const int timeout, boolean debug)
