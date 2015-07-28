@@ -98,8 +98,10 @@ void loop()
      //sendWebpage("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
      sendWebpage("<html xmlns=\"http://www.w3.org/1999/xhtml\">"
                  "<head><meta http-equiv=\"Content-Type\"content=\"text/html;charset=utf-8\"/><title>ESP8266</title>");
+     //sendWebpage("<style type=\"text/css\">#HeadTable {font-family:\"Comic Sans MS\",cursive;font-size:24px;font-style:italic;font-weight:bolder;color: #FFF;}</style>");
+     //sendWebpage("button {font-family:\"Comic Sans MS\",cursive;font-size:18px;background-color:#FF6;color:#39F;}</style>");
      sendWebpage("</head><body bgcolor=\"#FFFFCC\">&nbsp;<table width=\"80%\" border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\"><tr>");
-     sendWebpage("<td width=\"10%\"bgcolor=\"#00CCFF\">&nbsp;</td><td width=\"90%\"height=\"80\"bgcolor=\"#00CCFF\">ESP8266 Smart Control</td></tr></table>");
+     sendWebpage("<td width=\"10%\"bgcolor=\"#00CCFF\">&nbsp;</td><td width=\"90%\"height=\"80\"bgcolor=\"#00CCFF\"id=\"HeadTable\">ESP8266 Smart Control</td></tr></table>");
      sendWebpage("<table width=\"80%\"border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\"><tr>");
      sendWebpage("<td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;<button onClick=\"window.location='/status/1';\">ON</button></td></tr>");
      sendWebpage("<tr><td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;<button onClick=\"window.location='/status/0';\">OFF</button></td></tr></table>"
@@ -129,26 +131,20 @@ void sendWebpage(String command)
 String sendData(String command, const int timeout, boolean debug)
 {
     String response = "";
-    
     esp8266.print(command); // send the read character to the esp8266
-    
     long int time = millis();
-    
     while( (time+timeout) > millis())
     {
       while(esp8266.available())
       {
-        
         // The esp has data so display its output to the serial window 
         char c = esp8266.read(); // read the next character.
         response+=c;
       }  
     }
-    
     if(debug)
     {
       Serial.print(response);
     }
-    
     return response;
 }
