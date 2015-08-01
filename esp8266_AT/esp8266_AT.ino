@@ -6,34 +6,12 @@ SoftwareSerial esp8266(3,4); // make RX Arduino line is pin 2, make TX Arduino l
                              // This means that you need to connect the TX line from the esp to the Arduino's pin 2
                              // and the RX line from the esp to the Arduino's pin 3
 
-String IP;
+String IP,IP_A,IP_B;
+char IP_Buffer;
 String ssid = "Pi_AP";
 String pass = "Raspberry";
-int connectionId;
-/*
-String Webpage_1 = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
-                   "<html xmlns=\"http://www.w3.org/1999/xhtml\">"
-                   "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>ESP8266</title><style type=\"text/css\">"
-                   "#HeadTable {font-family: \"Comic Sans MS\", cursive;font-size: 24px;font-style: italic;font-weight: bolder;color: #FFF;}"
-                   "button {font-family: \"Comic Sans MS\", cursive;font-size: 18px;background-color: #FF6;color: #39F;}";
+int connectionId,Count_loop,Split;
 
-String Webpage_2 = "</style></head><body bgcolor=\"#FFFFCC\">&nbsp;<table width=\"80%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
-                   "<td width=\"10%\" bgcolor=\"#00CCFF\">&nbsp;</td><td width=\"90%\" height=\"80\" bgcolor=\"#00CCFF\" id=\"HeadTable\">ESP8266 Smart Control</td></tr></table>"
-                   "<table width=\"80%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
-                   "<td height=\"80\" bgcolor=\"#00FF99\" align=\"center\">&nbsp;<button onClick=\"window.location='/status/1';\">ON</button></td></tr>"
-                   "<tr><td height=\"80\" bgcolor=\"#00FF99\" align=\"center\">&nbsp;<button onClick=\"window.location='/status/0';\" >OFF</button></td></tr></table>"
-                   "<input type=\"button\" onClick=\"window.location='/status/1';\" value=\"ON\" /><input type=\"button\" onClick=\"window.location='/status/0';\" value=\"OFF\" />"
-                   "</body></html>";
-*/
-/*
-String Webpage_A = "<title>ESP8266</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-                   "<h1>GPIO16 Control</h1><button onClick=\"window.location='/status/1';\">ON</button>&nbsp;&nbsp;"
-                   "<button onClick=\"window.location='/status/0';\">OFF</button>";
-
-String Webpage_B = "<title>ESP8266</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-                   "<h1>GPIO16 Control</h1><input type=\"button\" onClick=\"window.location='/status/1';\" value=\"ON\" />&nbsp;&nbsp;"
-                   "<input type=\"button\" onClick=\"window.location='/status/0';\" value=\"OFF\" />";
-*/
 void setup()
 {
   Serial.begin(19200);
@@ -51,6 +29,12 @@ void setup()
   IP = sendData("AT+CIFSR\r\n",100,DEBUG); // get ip address 
   sendData("AT+CIPMUX=1\r\n",100,DEBUG); // configure for multiple connections
   sendData("AT+CIPSERVER=1,80\r\n",100,DEBUG); // turn on server on port 80
+  for(Count_loop = 24; Count_loop < (IP.length() - 4); Count_loop++) {
+    //if(IP[Count_loop] != " ") {
+      IP_A = IP_A + IP[Count_loop];
+    //}
+  }
+  Serial.print("IP_A : " + IP_A);
 }
  
 void loop()
@@ -71,48 +55,35 @@ void loop()
  
      connectionId = esp8266.read()-48; // subtract 48 because the read() function returns 
                                            // the ASCII decimal value and 0 (the first decimal number) starts at 48
-                                           
-     esp8266.find("status/"); // advance cursor to "pin="
      
-     //int pinNumber = (esp8266.read()-48)*10; // get first number i.e. if the pin 13 then the 1st number is 1, then multiply to get 10
-     //pinNumber += (esp8266.read()-48); // get second number, i.e. if the pin number is 13 then the 2nd number is 3, then add to the first number
-    
-     int control_led = esp8266.read()-48;
-     if(control_led < 0) control_led = 0;
-     Serial.println(":status/" + String(control_led));
-     if(control_led) {digitalWrite(13,HIGH); digitalWrite(7,HIGH);}
-     else {digitalWrite(13,LOW); digitalWrite(7,LOW);}    
-     
-     //digitalWrite(pinNumber, !digitalRead(pinNumber)); // toggle pin    
-     //String webpage = "<h1>Hello</h1><h2>World!</h2><button>LED1</button><button>LED2</button>IP: " + IP;
-     /*
-     sendWebpage("<title>ESP8266</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-                 "<h1>GPIO16 Control</h1><button onClick=\"window.location='/status/1';\">ON</button>&nbsp;&nbsp;"
-                 "<button onClick=\"window.location='/status/0';\">OFF</button>");   
-      */
-      /*
-     sendWebpage("<title>ESP8266</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-                 "<h1>GPIO16 Control</h1><input type=\"button\" onClick=\"window.location='/status/1';\" value=\"ON\" />&nbsp;&nbsp;"
-                 "<input type=\"button\" onClick=\"window.location='/status/0';\" value=\"OFF\" />");   
-     */
-     //sendWebpage("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
-     sendWebpage("<html xmlns=\"http://www.w3.org/1999/xhtml\">"
-                 "<head><meta http-equiv=\"Content-Type\"content=\"text/html;charset=utf-8\"/><title>ESP8266</title>");
-     //sendWebpage("<style type=\"text/css\">#HeadTable {font-family:\"Comic Sans MS\",cursive;font-size:24px;font-style:italic;font-weight:bolder;color: #FFF;}</style>");
-     //sendWebpage("button {font-family:\"Comic Sans MS\",cursive;font-size:18px;background-color:#FF6;color:#39F;}</style>");
-     sendWebpage("</head><body bgcolor=\"#FFFFCC\">&nbsp;<table width=\"80%\" border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\"><tr>");
-     sendWebpage("<td width=\"10%\"bgcolor=\"#00CCFF\">&nbsp;</td><td width=\"90%\"height=\"80\"bgcolor=\"#00CCFF\"id=\"HeadTable\">ESP8266 Smart Control</td></tr></table>");
-     sendWebpage("<table width=\"80%\"border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\"><tr>");
-     sendWebpage("<td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;<button onClick=\"window.location='/status/1';\">ON</button></td></tr>");
-     sendWebpage("<tr><td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;<button onClick=\"window.location='/status/0';\">OFF</button></td></tr></table>"
-                 "</body></html>");
-
+       esp8266.find("status/"); // advance cursor to "pin="
+       
+       //int pinNumber = (esp8266.read()-48)*10; // get first number i.e. if the pin 13 then the 1st number is 1, then multiply to get 10
+       //pinNumber += (esp8266.read()-48); // get second number, i.e. if the pin number is 13 then the 2nd number is 3, then add to the first number
+      
+       int control_led = esp8266.read()-48;
+       if(control_led < 0) control_led = 0;
+       Serial.println(":status/" + String(control_led));
+       if(control_led) {digitalWrite(13,HIGH); digitalWrite(7,HIGH);}
+       else {digitalWrite(13,LOW); digitalWrite(7,LOW);}    
+       
+       sendWebpage("<!DOCTYPE html>");
+       sendWebpage("<html><head><meta name=\"viewport\"content=\"width=device-width,initial-seale=1\"><title>ESP8266</title></head>");
+       sendWebpage("<body bgcolor=\"#FFFFCC\">&nbsp;<table width=\"80%\" border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\">");
+       sendWebpage("<tr><td width=\"10%\"bgcolor=\"#00CCFF\"></td><td width=\"90%\"height=\"80\"bgcolor=\"#00CCFF\"><h1>ESP8266 Smart Control</h1></td></tr></table>");
+       sendWebpage("<table width=\"80%\"border=\"0\"align=\"center\"cellpadding=\"0\"cellspacing=\"0\">");
+       sendWebpage("<tr><td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;");
+       sendWebpage("<button style=\"width:200px;height:50px\"onClick=\"window.location='/status/1';\"><h3>ON</h3></button></td></tr>");
+       sendWebpage("<tr><td height=\"80\"bgcolor=\"#00FF99\"align=\"center\">&nbsp;");
+       sendWebpage("<button style=\"width:200px;height:50px\"onClick=\"window.location='/status/0';\"><h3>OFF</h3></button></td></tr></table>");
+       sendWebpage("</body></html>");
+     }
      String closeCommand = "AT+CIPCLOSE="; 
      closeCommand+=connectionId; // append connection id
      closeCommand+="\r\n";
      
      sendData(closeCommand,50,DEBUG);
-    }
+    //}
   }
 }
 
@@ -124,8 +95,8 @@ void sendWebpage(String command)
   cipSend += ",";
   cipSend +=webpage.length();
   cipSend +="\r\n";
-  sendData(cipSend,50,DEBUG);
-  sendData(webpage,150,DEBUG);
+  sendData(cipSend,40,DEBUG);
+  sendData(webpage,160,0);
 }
  
 String sendData(String command, const int timeout, boolean debug)
