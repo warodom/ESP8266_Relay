@@ -8,7 +8,7 @@ SoftwareSerial esp8266(3,4); // make RX Arduino line is pin 2, make TX Arduino l
 
 String IP,IP_A,IP_B;
 char IP_Buffer;
-String ssid = "Pi_AP";
+String ssid = "Pi_APa";
 String pass = "Raspberry";
 int connectionId,Count_loop,Split;
 
