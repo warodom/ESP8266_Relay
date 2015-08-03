@@ -95,8 +95,8 @@ void sendWebpage(String command)
   cipSend += ",";
   cipSend +=webpage.length();
   cipSend +="\r\n";
-  sendData(cipSend,40,DEBUG);
-  sendData(webpage,160,0);
+  sendData(cipSend,60,DEBUG);
+  sendData(webpage,200,0);
 }
  
 String sendData(String command, const int timeout, boolean debug)
